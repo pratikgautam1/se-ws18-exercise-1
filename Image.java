@@ -6,6 +6,7 @@
  */
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 //importing packages and libraries for image and color
@@ -35,16 +36,17 @@ public class Image {
 	public void set(int x, int y, int rgb_value) {
 		// TODO Auto-generated method stub
 		//setting RGB values to single pixel in specified pixel_position
-		int rgbvalmax=0xFFFFFF;
-		rgb_value=rgbvalmax & rgb_value;
-		String strValue="0x"+ Integer.toHexString(rgb_value);
+		assert(rgb_value< 0x1000000);
+		// maximum color all whited 0xFFFFFF;
+		
+		
+		//String strValue="0x"+ Integer.toHexString(rgb_value);
 		//determining the pixel position
 		pixel_position=x*width*3+y*3;
-		//Assigning pixel at different position
-		data[pixel_position]=(byte)Integer.parseInt(strValue.substring(2,4),16); 
-		data[pixel_position+1]=(byte)Integer.parseInt(strValue.substring(4,6),16);
-		data[pixel_position+2]=(byte)Integer.parseInt(strValue.substring(6,8),16);	
-	
+		//Assigning pixel at different position by shifting
+		data[pixel_position]=(byte)((rgb_value & 0xFF0000)>>16); 
+		data[pixel_position+1]=(byte)((rgb_value & 0xFF00)>>8);
+		data[pixel_position+2]=(byte)(rgb_value & 0xFF);	
 		//image.setRGB(x,y,val);
 		//data = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
 			
@@ -55,12 +57,20 @@ public class Image {
 		// throwing exception if there is any error while writing the file
 		
 		//File f = new File(filename);
-		FileWriter filewriter = new FileWriter(filename);
-		BufferedWriter bf= new BufferedWriter(filewriter);
+		//FileWriter filewriter = new FileWriter(filename);
+		//BufferedWriter bf= new BufferedWriter(filewriter);
+		FileOutputStream fos=new FileOutputStream(filename);
+		
 		//setting ppm header file
-		String assignment = "P6\t" + width + "\t" + height + "\t";
-		bf.write(assignment);
+		String assignment =String.format("P6\t", width , height ,255);
+		fos.write(assignment.getBytes());
 		//setting pixel value in specified position
+		for(int i=0; i<data.length; i++)
+		{
+			fos.write(data[i]);
+		}
+		
+		/*
 		for(int i=0;i<height;i++){
 			for(int j=0;j<width;j++){
 				int pixel_position1= i*width*3+j*3;
@@ -70,8 +80,8 @@ public class Image {
 
 
 			}
-		}
-		bf.close();
+		}*/
+		fos.close();
 
 
 	}
